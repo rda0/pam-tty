@@ -3,11 +3,17 @@ PAM module to check if the login occurs via a specific tty like a serial console
 
 ## Prerequisites
 
-Get the required PAM headers:
+Get the required PAM headers (`/usr/include/security/pam_appl.h`):
+
+```sh
+apt install libpam0g-dev
+```
+
+Or copy it manually from the PAM sources:
 
 ```sh
 apt source pam
-mv pam-1.1.8 pam
+cp pam-1.1.8/libpam/include/security/pam_appl.h /usr/include/security
 ```
 
 ## Clone
@@ -18,24 +24,47 @@ Clone this repo:
 git clone https://github.com/rda0/pam_tty.git
 ```
 
-## Build
+## Installation instructions using `make`
 
 ```sh
 cd pam_tty
 ```
 
+### Build
+
 ```sh
-gcc -fPIC -DPIC -shared -rdynamic -I../pam/libpam/include -o pam_tty.so pam_tty.c
+make
+```
+
+Or, if you are running a multilib system:
+
+```sh
+make multilib
+```
+
+### Install
+
+```sh
+sudo make install
+```
+
+## Manual installation instructions
+
+### Build using `gcc`
+
+```sh
+cd pam_tty
+gcc -fPIC -DPIC -shared -rdynamic -o pam_tty.so pam_tty.c
 ```
 
 Or, if you are running a multilib system, you will need to compile the PAM module for every architecture your system has a `libpam` for, for example for `Linux/x86_64` and `Linux/i386`:
 
 ```sh
-gcc -m32 -fPIC -DPIC -shared -rdynamic -I../pam/libpam/include -o pam_tty_32.so pam_tty.c
-gcc -m64 -fPIC -DPIC -shared -rdynamic -I../pam/libpam/include -o pam_tty_64.so pam_tty.c
+gcc -m32 -fPIC -DPIC -shared -rdynamic -o pam_tty_32.so pam_tty.c
+gcc -m64 -fPIC -DPIC -shared -rdynamic -o pam_tty_64.so pam_tty.c
 ```
 
-## Install
+### Install
 
 Copy the PAM module to `/lib/security`:
 
@@ -54,6 +83,8 @@ cp pam_tty_64.so /lib64/security/pam_tty.so
 chown root:root /lib/security/pam_tty.so /lib64/security/pam_tty.so
 chmod 755 /lib/security/pam_tty.so /lib64/security/pam_tty.so
 ```
+
+## Example usage
 
 Enable the module in the PAM config (remove `debug` parameter for production):
 
