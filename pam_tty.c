@@ -16,6 +16,18 @@
   #include <syslog.h>
   #include <string.h>
 
+static const char* get_arg(const char* key, int argc, const char** argv) {
+	int len = strlen(key);
+	int i;
+
+	for (i = 0; i < argc; i++) {
+		if (strncmp(key, argv[i], len) == 0 && argv[i][len] == '=') {
+			return argv[i] + len + 1;
+		}
+	}
+	return NULL;
+}
+
   /* PAM entry point for session creation */
   int pam_sm_open_session(pam_handle_t *pamh, int flags, int argc, const char **argv) {
       return(PAM_IGNORE);
@@ -35,17 +47,25 @@
   int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **argv) {
       int pgi_ret;
       char *tty;
-      
+      const char* match_tty;
+
+      match_tty = get_arg("tty", argc, argv);
+
       if (PAM_SUCCESS != (pgi_ret = pam_get_item(pamh, PAM_TTY, (const void **)&tty))) {
           pam_syslog(pamh, LOG_ERR, "Unable to obtain the tty.");
       } else {
           pam_syslog(pamh, LOG_DEBUG, "Successfully obtained the tty.");
           pam_syslog(pamh, LOG_DEBUG, "The tty is: %s", tty);
-          if((strncmp(tty, "/dev/ttyS", 9) == 0) || (strncmp(tty, "/dev/hvc", 8) == 0)) {
-              pam_syslog(pamh, LOG_DEBUG, "Successfully matched tty.");
-              return(PAM_SUCCESS);
+          if(match_tty != NULL) {
+              if(strncmp(tty, match_tty, strlen(match_tty)) == 0) {
+//              if((strncmp(tty, "/dev/ttyS", 9) == 0) || (strncmp(tty, "/dev/hvc", 8) == 0)) {
+                  pam_syslog(pamh, LOG_DEBUG, "Successfully matched tty.");
+                  return(PAM_SUCCESS);
+              } else {
+                  pam_syslog(pamh, LOG_DEBUG, "Failed to match tty.");
+              }
           } else {
-              pam_syslog(pamh, LOG_DEBUG, "Failed to match tty.");
+              pam_syslog(pamh, LOG_ERR, "Missing argment: tty");
           }              
       }
       return(PAM_IGNORE);
