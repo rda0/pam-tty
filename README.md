@@ -21,13 +21,13 @@ cp pam-1.1.8/libpam/include/security/pam_appl.h /usr/include/security
 Clone this repo:
 
 ```sh
-git clone https://github.com/rda0/pam_tty.git
+git clone https://github.com/rda0/pam-tty.git
 ```
 
 ## Installation instructions using `make`
 
 ```sh
-cd pam_tty
+cd pam-tty
 ```
 
 ### Build
@@ -53,7 +53,7 @@ sudo make install
 ### Build using `gcc`
 
 ```sh
-cd pam_tty
+cd pam-tty
 gcc -fPIC -DPIC -shared -rdynamic -o pam_tty.so pam_tty.c
 ```
 
