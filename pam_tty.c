@@ -1,4 +1,6 @@
-/* Author: Sven Mäder, ETH Zurich, ISG D-PHYS*/
+/* 
+ * Author: Sven Mäder <maeder@phys.ethz.ch>, ETH Zurich, ISG D-PHYS
+ */
 
 /* Define which PAM interfaces we provide */
   #define PAM_SM_ACCOUNT
