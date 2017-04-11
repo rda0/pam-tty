@@ -83,7 +83,6 @@ int pam_sm_acct_mgmt(pam_handle_t *pamh, int flags, int argc, const char **argv)
 /* PAM entry point for authentication verification */
 int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **argv) {
     int pgi_ret, i;
-    unsigned int pam_return = PAM_IGNORE;
     unsigned int debug = 0;
     char *tty;
     const char *arg_tty_key = "tty";
