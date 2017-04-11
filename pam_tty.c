@@ -107,19 +107,13 @@ int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **ar
     } else if(strcmp(arg_tty, "") == 0) {
         pam_syslog(pamh, LOG_ERR, "missing argment value: %s", arg_tty_key);
         return(PAM_IGNORE);
-    }// else {
-    //    pam_syslog(pamh, LOG_DEBUG, "argument: %s = %s", arg_tty_key, arg_tty);
-    //}
+    }
 
     arg_tty_values = get_values(arg_tty, ",");
     if(arg_tty_values == NULL) {
         pam_syslog(pamh, LOG_ERR, "memory allocation failed");
         return(PAM_IGNORE);
-    }// else {
-    //    for(i = 0; arg_tty_values[i] != NULL; i++) {
-    //        pam_syslog(pamh, LOG_DEBUG, "Argument[%d] = %s", i, arg_tty_values[i]);
-    //    }
-    //}
+    }
 
     for(i = 0; arg_tty_values[i] != NULL; i++) {
         if(strncmp(tty, arg_tty_values[i], strlen(arg_tty_values[i])) == 0) {
