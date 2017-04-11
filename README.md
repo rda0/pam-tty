@@ -2,9 +2,9 @@
 
 PAM module to check if the login occurs via a specific tty like a serial console.
 
-It will return PAM_SUCCESS if the first characters of the  
-tty used for login matches one of the strings supplied as  
-value of argument `tty`.  
+It will return `PAM_SUCCESS` if the first characters of the
+tty used for login matches one of the strings supplied as
+value of argument `tty`.
 
 Example: `tty=/dev/ttyS` will match all logins via a serial
 console like `/dev/ttyS0`, `/dev/ttyS1`, etc.
@@ -12,9 +12,9 @@ console like `/dev/ttyS0`, `/dev/ttyS1`, etc.
 Arguments: The following module arguments are supported
 
  - `debug`: (Optional) Enables debugging output to syslog
- - `tty=<tty>`: (Required) Specifies the string(s) to match against the tty
+ - `tty=<tty>`: (Required) Specifies the string(s) to match against the tty.
                 Sepatate multiple values by comma `,`
-                Examples:  `tty=/dev/ttyS0`
+                Examples:  `tty=/dev/ttyS0`,
                            `tty=/dev/ttyS0,/dev/hvc`
 
 ## Prerequisites
@@ -90,7 +90,7 @@ chmod 755 /lib/security/pam_tty.so /lib64/security/pam_tty.so
 
 ## Example usage
 
-This module was created to give us a mechanism to skip two-factor auth  
+This module was created to give us a mechanism to skip two-factor auth
 using a **U2F** hardware token key (which is using `libpam-u2f`) under
 some circumstances, like when the login occurs via a serial console.
 
