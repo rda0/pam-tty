@@ -86,7 +86,7 @@ int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **ar
     if(arg_tty == NULL) {
         pam_syslog(pamh, LOG_ERR, "Missing argment: %s", arg_tty_key);
         return(PAM_IGNORE);
-    } else if(arg_tty == "") {
+    } else if(strcmp(arg_tty, "") == 0) {
         pam_syslog(pamh, LOG_ERR, "Missing argment value: %s", arg_tty_key);
         return(PAM_IGNORE);
     } else {
