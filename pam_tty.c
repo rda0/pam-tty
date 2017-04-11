@@ -106,19 +106,15 @@ int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **ar
 
     for(i = 0; arg_tty_values[i] != NULL; i++) {
         if(strncmp(tty, arg_tty_values[i], strlen(arg_tty_values[i])) == 0) {
-            pam_return = PAM_SUCCESS;
+            pam_syslog(pamh, LOG_DEBUG, "Successfully matched tty: %s", arg_tty_values[i]);
+            free(arg_tty_values); /* free the memory allocated */
+            return(PAM_SUCCESS);
         }
     }
 
+    pam_syslog(pamh, LOG_DEBUG, "Failed to match tty.");
     free(arg_tty_values); /* free the memory allocated */
-
-    if(pam_return == PAM_SUCCESS) {
-        pam_syslog(pamh, LOG_DEBUG, "Successfully matched tty.");
-        return(PAM_SUCCESS);
-    } else {
-        pam_syslog(pamh, LOG_DEBUG, "Failed to match tty.");
-        return(PAM_IGNORE);
-    }
+    return(PAM_IGNORE);
 }
 
 /*
