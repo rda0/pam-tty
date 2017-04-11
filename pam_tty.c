@@ -18,6 +18,18 @@
 #include <security/pam_modules.h>
 #include <security/pam_ext.h>
 
+static unsigned int has_argument(const char* argument, int argc, const char** argv) {
+   int len = strlen(argument);
+   int i;
+
+   for (i = 0; i < argc; i++) {
+       if (strncmp(argument, argv[i], len) == 0) {
+           return 1;
+       }
+   }
+   return 0;
+}
+
 static const char* get_value(const char* key, int argc, const char** argv) {
    int len = strlen(key);
    int i;
@@ -36,11 +48,13 @@ static char** get_values(char* list, const char* delimiter) {
     int n_delimiter = 0, i;
 
     ptr = strtok(list, delimiter);
-    /* split string and append tokens to 'res' */
+    /* split string and append tokens to 'values' */
     while (ptr) {
         values = realloc(values, sizeof(char*) * ++n_delimiter);
         if (values == NULL) {
-            exit(-1); /* memory allocation failed */
+            /* memory allocation failed */
+            return NULL;
+            //exit(-1);
         }
         values[n_delimiter-1] = ptr;
         ptr = strtok(NULL, delimiter);
@@ -70,54 +84,54 @@ int pam_sm_acct_mgmt(pam_handle_t *pamh, int flags, int argc, const char **argv)
 int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **argv) {
     int pgi_ret, i;
     unsigned int pam_return = PAM_IGNORE;
+    unsigned int debug = 0;
     char *tty;
     const char *arg_tty_key = "tty";
     char *arg_tty;
     char **arg_tty_values;
 
+    debug = has_argument("debug", argc, argv);
+
     if (PAM_SUCCESS != (pgi_ret = pam_get_item(pamh, PAM_TTY, (const void **)&tty))) {
-        pam_syslog(pamh, LOG_ERR, "Unable to obtain tty.");
+        pam_syslog(pamh, LOG_ERR, "unable to obtain tty");
         return(PAM_IGNORE);
     } else {
-        pam_syslog(pamh, LOG_DEBUG, "Successfully obtained tty: %s", tty);
+        if (debug)
+            pam_syslog(pamh, LOG_DEBUG, "successfully obtained tty: %s", tty);
     }
 
     arg_tty = (char *)get_value(arg_tty_key, argc, argv);
     if(arg_tty == NULL) {
-        pam_syslog(pamh, LOG_ERR, "Missing argment: %s", arg_tty_key);
+        pam_syslog(pamh, LOG_ERR, "missing argment: %s", arg_tty_key);
         return(PAM_IGNORE);
     } else if(strcmp(arg_tty, "") == 0) {
-        pam_syslog(pamh, LOG_ERR, "Missing argment value: %s", arg_tty_key);
+        pam_syslog(pamh, LOG_ERR, "missing argment value: %s", arg_tty_key);
         return(PAM_IGNORE);
-    } else {
-        pam_syslog(pamh, LOG_DEBUG, "Argument: %s = %s", arg_tty_key, arg_tty);
-    }
+    }// else {
+    //    pam_syslog(pamh, LOG_DEBUG, "argument: %s = %s", arg_tty_key, arg_tty);
+    //}
 
     arg_tty_values = get_values(arg_tty, ",");
     if(arg_tty_values == NULL) {
-        pam_syslog(pamh, LOG_ERR, "Invalid argment value: %s", arg_tty_key);
+        pam_syslog(pamh, LOG_ERR, "memory allocation failed");
         return(PAM_IGNORE);
-    } else {
-        pam_syslog(pamh, LOG_DEBUG, "Arguments are:");
-        for(i = 0; arg_tty_values[i] != NULL; i++) {
-            if(strcmp(arg_tty_values[i], "") == 0) {
-                pam_syslog(pamh, LOG_ERR, "Invalid argment value: tty[%d]", i);
-                free(arg_tty_values); /* free the memory allocated */
-                return(PAM_IGNORE);
-            }
-            pam_syslog(pamh, LOG_DEBUG, "Argument[%d] = %s", i, arg_tty_values[i]);
-        }
-    }
+    }// else {
+    //    for(i = 0; arg_tty_values[i] != NULL; i++) {
+    //        pam_syslog(pamh, LOG_DEBUG, "Argument[%d] = %s", i, arg_tty_values[i]);
+    //    }
+    //}
 
     for(i = 0; arg_tty_values[i] != NULL; i++) {
         if(strncmp(tty, arg_tty_values[i], strlen(arg_tty_values[i])) == 0) {
-            pam_syslog(pamh, LOG_DEBUG, "Successfully matched tty: %s", arg_tty_values[i]);
+            if (debug)
+                pam_syslog(pamh, LOG_DEBUG, "successfully matched tty: %s", arg_tty_values[i]);
             free(arg_tty_values); /* free the memory allocated */
             return(PAM_SUCCESS);
         }
     }
 
-    pam_syslog(pamh, LOG_DEBUG, "Failed to match tty.");
+    if (debug)
+        pam_syslog(pamh, LOG_DEBUG, "failed to match tty");
     free(arg_tty_values); /* free the memory allocated */
     return(PAM_IGNORE);
 }
