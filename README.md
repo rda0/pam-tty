@@ -1,20 +1,24 @@
 # pam-tty
+
 PAM module to check if the login occurs via a specific tty like a serial console.
+
+It will return PAM_SUCCESS if the first characters of the  
+tty used for login matches one of the strings supplied as  
+value of argument `tty`.  
+
+Example: `tty=/dev/ttyS` will match all logins via a serial
+console like `/dev/ttyS0`, `/dev/ttyS1`, etc.
+
+Arguments: The following module arguments are supported
+
+ - `debug`: (Optional) Enables debugging output to syslog
+ - `tty=<tty>`: (Required) Specifies the string(s) to match against the tty
+                Sepatate multiple values by comma `,`
+                Examples:  `tty=/dev/ttyS0`
+                           `tty=/dev/ttyS0,/dev/hvc`
 
 ## Prerequisites
 
-Get the required PAM headers (`/usr/include/security/pam_appl.h`):
-
-```sh
-apt install libpam0g-dev
-```
-
-Or copy it manually from the PAM sources:
-
-```sh
-apt source pam
-cp pam-1.1.8/libpam/include/security/pam_appl.h /usr/include/security
-```
 
 ## Clone
 
@@ -86,11 +90,54 @@ chmod 755 /lib/security/pam_tty.so /lib64/security/pam_tty.so
 
 ## Example usage
 
+This module was created to give us a mechanism to skip two-factor auth  
+using a **U2F** hardware token key (which is using `libpam-u2f`) under
+some circumstances, like when the login occurs via a serial console.
+
 Enable the module in the PAM config (remove `debug` parameter for production):
 
 ```sh
 # pam_tty.so will return PAM_SUCCESS if the tty is matched
-auth [success=1 default=ignore] pam_tty.so debug
+auth [success=1 default=ignore] pam_tty.so debug tty=/dev/ttyS,/dev/hvc
+
 # and skip the next module (here a two factor authentication)
 auth required pam_u2f.so cue nouserok authfile=/etc/security/u2f_keys
 ```
+
+### Configuration using file `pam-auth-update`
+
+Create the file `/usr/share/pam-configs/u2f`:
+
+```sh
+Name: U2F root login
+Default: yes
+Priority: 950
+Auth-Type: Primary
+Auth:
+        [success=1 default=ignore] pam_tty.so tty=/dev/ttyS,/dev/hvc
+        required pam_u2f.so cue nouserok authfile=/etc/security/u2f_keys
+```
+
+Run `pam-auth-update`:
+
+```sh
+pam-auth-update --package
+```
+
+This will automatically create the correct file `/etc/pam.d/common-auth`.
+
+## Not required
+
+Get the required PAM headers (`/usr/include/security/pam_appl.h`):
+
+```sh
+apt install libpam0g-dev
+```
+
+Or copy it manually from the PAM sources:
+
+```sh
+apt source pam
+cp pam-1.1.8/libpam/include/security/pam_appl.h /usr/include/security
+```
+

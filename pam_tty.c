@@ -7,7 +7,7 @@
  *              tty used for login matches one of the strings supplied as
  *              value of argument `tty`.
  *              Example: tty=/dev/ttyS will match all logins via a serial
-                         console like /dev/ttyS0, /dev/ttyS1, etc.
+ *                       console like /dev/ttyS0, /dev/ttyS1, etc.
  *
  * Arguments:   The following module arguments are supported
  *
