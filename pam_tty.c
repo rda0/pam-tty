@@ -100,6 +100,11 @@ int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **ar
     } else {
         pam_syslog(pamh, LOG_DEBUG, "Arguments are:");
         for(i = 0; arg_tty_values[i] != NULL; i++) {
+            if(strcmp(arg_tty_values[i], "") == 0) {
+                pam_syslog(pamh, LOG_ERR, "Invalid argment value: tty[%d]", i);
+                free(arg_tty_values); /* free the memory allocated */
+                return(PAM_IGNORE);
+            }
             pam_syslog(pamh, LOG_DEBUG, "Argument[%d] = %s", i, arg_tty_values[i]);
         }
     }
