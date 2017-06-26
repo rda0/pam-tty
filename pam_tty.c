@@ -55,9 +55,13 @@ static unsigned int has_argument(const char* argument, int argc, const char** ar
    int len = strlen(argument);
    int i;
 
-   for (i = 0; i < argc; i++) {
-       if (strncmp(argument, argv[i], len) == 0) {
-           return 1;
+   if (argument != NULL && argc > 0 && argv != NULL) {
+       for (i = 0; i < argc; i++) {
+           if (argv[i] != NULL) {
+               if (strncmp(argument, argv[i], len) == 0) {
+                   return 1;
+               }
+           }
        }
    }
    return 0;
@@ -68,9 +72,13 @@ static const char* get_value(const char* key, int argc, const char** argv) {
    int len = strlen(key);
    int i;
 
-   for (i = 0; i < argc; i++) {
-       if (strncmp(key, argv[i], len) == 0 && argv[i][len] == '=') {
-           return argv[i] + len + 1;
+   if (key != NULL && argc > 0 && argv != NULL) {
+       for (i = 0; i < argc; i++) {
+           if (argv[i] != NULL) {
+               if (strncmp(key, argv[i], len) == 0 && argv[i][len] == '=') {
+                   return argv[i] + len + 1;
+               }
+           }
        }
    }
    return NULL;
@@ -135,6 +143,12 @@ int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **ar
     } else {
         if (debug)
             pam_syslog(pamh, LOG_DEBUG, "successfully obtained tty: %s", tty);
+    }
+
+    if (tty == NULL) {
+        if (debug)
+            pam_syslog(pamh, LOG_DEBUG, "tty is NULL");
+        return(PAM_IGNORE);
     }
 
     /* Get (list of) tty to match from module arguments (`tty=<list_of_ttys>`) */
