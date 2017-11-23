@@ -19,6 +19,11 @@ Arguments: The following module arguments are supported
 
 ## Prerequisites
 
+Install development files for PAM:
+
+```
+apt install libpam0g-dev
+```
 
 ## Clone
 
