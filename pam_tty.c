@@ -109,23 +109,8 @@ static char** get_values(char* list, const char* delimiter) {
     return values;
 }
 
-/* PAM entry point for session creation */
-int pam_sm_open_session(pam_handle_t *pamh, int flags, int argc, const char **argv) {
-    return(PAM_IGNORE);
-}
-
-/* PAM entry point for session cleanup */
-int pam_sm_close_session(pam_handle_t *pamh, int flags, int argc, const char **argv) {
-    return(PAM_IGNORE);
-}
-
-/* PAM entry point for accounting */
-int pam_sm_acct_mgmt(pam_handle_t *pamh, int flags, int argc, const char **argv) {
-    return(PAM_IGNORE);
-}
-
-/* PAM entry point for authentication verification */
-int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **argv) {
+/* Returns PAM_SUCCESS if login occurs via a specific tty */
+int pam_tty(pam_handle_t *pamh, int argc, const char **argv) {
     int pgi_ret, i;
     unsigned int debug = 0;
     char *tty;
@@ -182,6 +167,26 @@ int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **ar
         pam_syslog(pamh, LOG_DEBUG, "failed to match tty");
     free(arg_tty_values); /* free the memory allocated */
     return(PAM_IGNORE);
+}
+
+/* PAM entry point for session creation */
+int pam_sm_open_session(pam_handle_t *pamh, int flags, int argc, const char **argv) {
+    return(pam_tty(pamh, argc, argv));
+}
+
+/* PAM entry point for session cleanup */
+int pam_sm_close_session(pam_handle_t *pamh, int flags, int argc, const char **argv) {
+    return(PAM_IGNORE);
+}
+
+/* PAM entry point for accounting */
+int pam_sm_acct_mgmt(pam_handle_t *pamh, int flags, int argc, const char **argv) {
+    return(PAM_IGNORE);
+}
+
+/* PAM entry point for authentication verification */
+int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **argv) {
+    return(pam_tty(pamh, argc, argv));
 }
 
 /*

@@ -5,6 +5,7 @@ PAM module to check if the login occurs via a specific tty like a serial console
 It will return `PAM_SUCCESS` if the first characters of the
 tty used for login matches one of the strings supplied as
 value of argument `tty`.
+Can be used in `auth` and `session`, in other groups returns `PAM_IGNORE`.
 
 Example: `tty=/dev/ttyS` will match all logins via a serial
 console like `/dev/ttyS0`, `/dev/ttyS1`, etc.
@@ -44,7 +45,6 @@ cd pam-tty
 ```sh
 make
 ```
-
 Or, if you are running a multilib system:
 
 ```sh
